@@ -1,5 +1,13 @@
+import { createClient } from "redis";
 import { connectDB } from "@/libs/mongodb";
+import { redisClient, connectRedis } from "@/libs/redis";
 import Product from "../../../Schemas/Product";
+import Supplier from "../../../Schemas/Supplier";
+
+
+
+// Conectar Redis al iniciar
+redisClient.connect().catch((err) => console.error("Error connecting to Redis", err));
 
 export async function POST(request) {
   try {
@@ -17,7 +25,7 @@ export async function POST(request) {
         nombre: productData.nombre,
         descripcion: productData.descripcion,
         precio: productData.precio,
-        proveedores: productData.proveedores, // Lista inicial de proveedores
+        proveedores: productData.proveedores,
       });
     } else {
       // Actualizar el producto si ya existe
@@ -37,8 +45,15 @@ export async function POST(request) {
       }
     }
 
-    // Guardar cambios en el producto
+    // Guardar cambios en la base de datos
     const savedProduct = await product.save();
+
+    // Actualizar en Redis (individual)
+    const redisKey = `product:${savedProduct.idProduct}`;
+    await redisClient.set(redisKey, JSON.stringify(savedProduct));
+
+    // Invalida la clave de todos los productos en Redis
+    await redisClient.del("all_products");
 
     return new Response(JSON.stringify(savedProduct), {
       status: 201,
@@ -51,11 +66,35 @@ export async function POST(request) {
     });
   }
 }
+
+
+
+
+
+
 export async function GET() {
   try {
     await connectDB();
 
+    // Intentar obtener productos desde Redis
+    const redisKey = "all_products";
+    const cachedProducts = await redisClient.get(redisKey);
+
+    if (cachedProducts) {
+      // Retornar productos de Redis si existen
+      return new Response(cachedProducts, {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Si no están en Redis, consultar MongoDB
     const products = await Product.find().populate("proveedores.proveedor");
+
+    // Guardar los productos en Redis
+    await redisClient.set(redisKey, JSON.stringify(products), {
+      EX: 3600, // Expiración de 1 hora
+    });
 
     return new Response(JSON.stringify(products), {
       status: 200,
@@ -68,3 +107,5 @@ export async function GET() {
     });
   }
 }
+
+
