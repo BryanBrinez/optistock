@@ -7,7 +7,7 @@ const CustomerSchema = new mongoose.Schema({
     ciudad: { type: String },
     codigo_postal: { type: String },
   },
-  historial_pedidos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }], // Referencia a Pedidos
+  historial_pedidos: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Order' }],
 }, { timestamps: true });
 
 export default mongoose.models.Customer || mongoose.model('Customer', CustomerSchema);

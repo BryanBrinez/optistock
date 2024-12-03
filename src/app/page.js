@@ -112,6 +112,7 @@ export default function Home() {
                 <div>
                   <h2 className="text-lg font-semibold">{product.nombre}</h2>
                   <p>{product.descripcion}</p>
+                  <p>{product.fechaCaducidad}</p>
                   <p className="text-gray-600">${product.precio.toFixed(2)}</p>
                   <button
                     onClick={() => handleEdit(product)}

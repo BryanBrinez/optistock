@@ -1,11 +1,11 @@
 import mongoose from 'mongoose';
 
 const OrderSchema = new mongoose.Schema({
-  cliente: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true }, // Referencia a Cliente
-  tienda: { type: mongoose.Schema.Types.ObjectId, ref: 'Store', required: true }, // Nueva referencia a Tienda
+  cliente: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true },
+  tienda: { type: mongoose.Schema.Types.ObjectId, ref: 'Store', required: true },
   productos: [
     {
-      producto: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true }, // Referencia a Producto
+      producto: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true },
       cantidad: { type: Number, required: true },
     }
   ],
