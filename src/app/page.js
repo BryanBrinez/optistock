@@ -24,7 +24,7 @@ function Navbar() {
           <a href="#productos" className="hover:text-blue-200">
             Productos
           </a>
-          <a href="#ordenes" className="hover:text-blue-200">
+          <a href="/orders" className="hover:text-blue-200">
             Órdenes
           </a>
           <a href="#tiendas" className="hover:text-blue-200">
@@ -138,7 +138,9 @@ export default function Home() {
       <header className="bg-gradient-to-r from-blue-500 to-purple-500 text-white py-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold">Gestión de Productos</h1>
-          <p className="mt-2 text-lg">Administra tus productos de manera sencilla y eficiente</p>
+          <p className="mt-2 text-lg">
+            Administra tus productos de manera sencilla y eficiente
+          </p>
         </div>
       </header>
 
@@ -154,9 +156,12 @@ export default function Home() {
                 key={product.idProduct}
                 className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
               >
-                {editingProduct && editingProduct.idProduct === product.idProduct ? (
+                {editingProduct &&
+                editingProduct.idProduct === product.idProduct ? (
                   <div>
-                    <h2 className="text-lg font-semibold mb-4">Editando: {product.nombre}</h2>
+                    <h2 className="text-lg font-semibold mb-4">
+                      Editando: {product.nombre}
+                    </h2>
                     <input
                       type="text"
                       name="nombre"
@@ -167,7 +172,7 @@ export default function Home() {
                     />
                     <textarea
                       name="descripcion"
-                      value={formData.descripcion}//
+                      value={formData.descripcion} //
                       onChange={handleInputChange}
                       className="border border-gray-300 rounded p-2 mb-2 w-full"
                       placeholder="Descripción"
@@ -191,7 +196,9 @@ export default function Home() {
                   <div>
                     <h2 className="text-lg font-semibold">{product.nombre}</h2>
                     <p className="text-gray-700">{product.descripcion}</p>
-                    <p className="text-gray-600 font-bold mt-2">${product.precio.toFixed(2)}</p>
+                    <p className="text-gray-600 font-bold mt-2">
+                      ${product.precio.toFixed(2)}
+                    </p>
                     <button
                       onClick={() => handleEdit(product)}
                       className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 transition-colors w-full"

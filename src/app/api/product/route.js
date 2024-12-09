@@ -4,10 +4,10 @@ import { redisClient, connectRedis } from "@/libs/redis";
 import Product from "../../../Schemas/Product";
 import Supplier from "../../../Schemas/Supplier";
 
-
-
 // Conectar Redis al iniciar
-redisClient.connect().catch((err) => console.error("Error connecting to Redis", err));
+redisClient
+  .connect()
+  .catch((err) => console.error("Error connecting to Redis", err));
 
 export async function POST(request) {
   try {
@@ -67,11 +67,6 @@ export async function POST(request) {
   }
 }
 
-
-
-
-
-
 export async function GET() {
   try {
     await connectDB();
@@ -107,5 +102,3 @@ export async function GET() {
     });
   }
 }
-
-
