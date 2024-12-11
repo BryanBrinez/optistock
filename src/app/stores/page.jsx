@@ -1,13 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import React from "react";
 
-export default function OrdersPage() {
+export default function StoresPage() {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editMode, setEditMode] = useState({}); // Controla qué tienda está en modo edición
 
-  // Función para obtener las órdenes
+  // Función para obtener las tiendas
   const fetchStores = async () => {
     setLoading(true);
     try {
@@ -25,6 +25,36 @@ export default function OrdersPage() {
     fetchStores();
   }, []);
 
+  // Función para manejar la edición
+  const toggleEditMode = (idStore) => {
+    setEditMode((prev) => ({ ...prev, [idStore]: !prev[idStore] }));
+  };
+
+  // Función para guardar los cambios
+  const saveChanges = async (idStore) => {
+    const updatedStore = stores.find((store) => store.idStore === idStore);
+
+    try {
+      const response = await axios.put("/api/store", {
+        idStore,
+        ...updatedStore,
+      });
+      console.log("Tienda actualizada:", response.data);
+
+      // Actualizar la lista de tiendas con los datos guardados
+      setStores((prev) =>
+        prev.map((store) =>
+          store.idStore === idStore ? response.data : store
+        )
+      );
+
+      // Desactivar el modo edición para esta tienda
+      toggleEditMode(idStore);
+    } catch (error) {
+      console.error("Error al guardar los cambios:", error);
+    }
+  };
+
   if (loading) {
     return <p className="text-center text-gray-600">Cargando tiendas...</p>;
   }
@@ -39,32 +69,111 @@ export default function OrdersPage() {
                 key={store.idStore}
                 className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
               >
-                <h2 className="text-lg font-semibold mb-4">{store.nombre}</h2>
-                <div className="mb-2">
-                  <h3 className="font-bold">Dirección:</h3>
-                  <p>{store.direccion}</p>
-                  <p>Ciudad: {store.ciudad}</p>
-                  <p>Código Postal: {store.codigoPostal}</p>            
-                </div>
-
-                <div className="mb-2">
-                  <h3 className="font-bold">Capacidad de Almacenamiento:</h3>
-                  <p>{store.capacidadAlmacenamiento} unidades</p>
-                </div>
-
-                <div>
-                <h3 className="font-bold">Horario de Operación:</h3>
-                <p>{store.horarioOperacion}</p>
-                <p className="text-gray-600 mt-2">
-                  Registrado el:{" "}
-                  {new Date(store.createdAt).toLocaleDateString("es-ES", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
+                {editMode[store.idStore] ? (
+                  <>
+                    <input
+                      className="border rounded w-full p-2 mb-2"
+                      value={store.nombre}
+                      onChange={(e) =>
+                        setStores((prev) =>
+                          prev.map((s) =>
+                            s.idStore === store.idStore
+                              ? { ...s, nombre: e.target.value }
+                              : s
+                          )
+                        )
+                      }
+                    />
+                    <input
+                      className="border rounded w-full p-2 mb-2"
+                      value={store.direccion}
+                      onChange={(e) =>
+                        setStores((prev) =>
+                          prev.map((s) =>
+                            s.idStore === store.idStore
+                              ? { ...s, direccion: e.target.value }
+                              : s
+                          )
+                        )
+                      }
+                    />
+                    <input
+                      className="border rounded w-full p-2 mb-2"
+                      value={store.ciudad}
+                      onChange={(e) =>
+                        setStores((prev) =>
+                          prev.map((s) =>
+                            s.idStore === store.idStore
+                              ? { ...s, ciudad: e.target.value }
+                              : s
+                          )
+                        )
+                      }
+                    />
+                    <input
+                      className="border rounded w-full p-2 mb-2"
+                      value={store.codigoPostal}
+                      onChange={(e) =>
+                        setStores((prev) =>
+                          prev.map((s) =>
+                            s.idStore === store.idStore
+                              ? { ...s, codigoPostal: e.target.value }
+                              : s
+                          )
+                        )
+                      }
+                    />
+                    <input
+                      className="border rounded w-full p-2 mb-2"
+                      type="number"
+                      value={store.capacidadAlmacenamiento}
+                      onChange={(e) =>
+                        setStores((prev) =>
+                          prev.map((s) =>
+                            s.idStore === store.idStore
+                              ? { ...s, capacidadAlmacenamiento: e.target.value }
+                              : s
+                          )
+                        )
+                      }
+                    />
+                    <input
+                      className="border rounded w-full p-2 mb-2"
+                      value={store.horarioOperacion}
+                      onChange={(e) =>
+                        setStores((prev) =>
+                          prev.map((s) =>
+                            s.idStore === store.idStore
+                              ? { ...s, horarioOperacion: e.target.value }
+                              : s
+                          )
+                        )
+                      }
+                    />
+                    <button
+                      onClick={() => saveChanges(store.idStore)}
+                      className="bg-green-500 text-white px-4 py-2 rounded w-full hover:bg-green-600 transition-colors"
+                    >
+                      Guardar
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <h2 className="text-lg font-semibold mb-4">{store.nombre}</h2>
+                    <p>Dirección: {store.direccion}</p>
+                    <p>Ciudad: {store.ciudad}</p>
+                    <p>Código Postal: {store.codigoPostal}</p>
+                    <p>Capacidad: {store.capacidadAlmacenamiento} unidades</p>
+                    <p>Horario: {store.horarioOperacion}</p>
+                    <button
+                      onClick={() => toggleEditMode(store.idStore)}
+                      className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 transition-colors w-full"
+                    >
+                      Editar
+                    </button>
+                  </>
+                )}
               </div>
-            </div>
             ))}
           </div>
         ) : (

@@ -48,4 +48,44 @@ export async function GET() {
     });
   }
 }
- 
+
+export async function PUT(request) {
+  try {
+    await connectDB();
+
+    // Parsear los datos enviados
+    const { idStore, ...updatedData } = await request.json();
+
+    // Verificar que se envíe el ID
+    if (!idStore) {
+      return new Response(
+        JSON.stringify({ message: "El ID de la tienda es obligatorio." }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Actualizar la tienda en la base de datos
+    const updatedStore = await Store.findOneAndUpdate(
+      { idStore },
+      updatedData,
+      { new: true } // Devuelve la tienda actualizada
+    );
+
+    if (!updatedStore) {
+      return new Response(
+        JSON.stringify({ message: "Tienda no encontrada." }),
+        { status: 404, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(JSON.stringify(updatedStore), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    return new Response(JSON.stringify({ message: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
