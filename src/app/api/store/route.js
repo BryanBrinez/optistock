@@ -89,3 +89,41 @@ export async function PUT(request) {
     });
   }
 }
+
+export async function DELETE(request) {
+  try {
+    // Conectar a la base de datos
+    await connectDB();
+
+    // Extraer idStore de los parámetros de la consulta
+    const { searchParams } = new URL(request.url);
+    const idStore = searchParams.get("idStore");
+
+    if (!idStore) {
+      return new Response(
+        JSON.stringify({ message: "idStore es requerido" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Eliminar la tienda
+    const deletedStore = await Store.findOneAndDelete({ idStore });
+
+    if (!deletedStore) {
+      return new Response(
+        JSON.stringify({ message: "Tienda no encontrada" }),
+        { status: 404, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({ message: "Tienda eliminada correctamente" }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ message: error.message }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
+}
