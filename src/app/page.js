@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 
 function Navbar() {
   return (
@@ -30,9 +31,9 @@ function Navbar() {
           <a href="#tiendas" className="hover:text-blue-200">
             Tiendas
           </a>
-          <a href="#proveedores" className="hover:text-blue-200">
+          <Link href="/proveedores" className="hover:text-blue-200">
             Proveedores
-          </a>
+          </Link>
         </div>
 
         {/* Botón para menú móvil */}
