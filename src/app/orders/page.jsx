@@ -1,11 +1,14 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import axios from "axios";
 import React from "react";
+import CreateOrderForm from "./create/page";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false); // Estado para alternar entre lista y formulario
 
   // Función para obtener las órdenes
   const fetchOrders = async () => {
@@ -32,7 +35,18 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="p-8">
-        {orders?.length > 0 ? (
+        <div className="mb-6 flex justify-between items-center">
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm ? "Ver Órdenes" : "Crear Orden"}
+          </button>
+        </div>
+
+        {showForm ? (
+          <CreateOrderForm />
+        ) : orders?.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {orders.map((order) => (
               <div
@@ -43,7 +57,7 @@ export default function OrdersPage() {
                 <div className="mb-2">
                   <h3 className="font-bold">Productos:</h3>
                   {order.productos.map((producto) => (
-                    <div key={producto.producto._id} className="ml-4 mb-2">
+                    <div key={producto.producto._id} className=" mb-2">
                       <p className="font-semibold">
                         {producto.producto.nombre}
                       </p>
