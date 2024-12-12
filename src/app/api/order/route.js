@@ -119,7 +119,7 @@ export async function POST(request) {
       const product = await Product.findOne({ nombre: item.producto });
 
       if (!product) {
-        unavailableProducts.push(item.producto); // Nombre del producto que no se encuentra
+        unavailableProducts.push(item.producto);
         continue; // Si no se encuentra el producto, se salta al siguiente
       }
 

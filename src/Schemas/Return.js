@@ -32,6 +32,12 @@ const ReturnSchema = new mongoose.Schema(
       required: function () {
         return this.tipo === "reembolso";
       },
+      validate: {
+        validator: function (v) {
+          return this.tipo !== "reembolso" || (typeof v === "number" && v >= 0);
+        },
+        message: "El monto de reembolso debe ser un número no negativo.",
+      },
     },
   },
   {

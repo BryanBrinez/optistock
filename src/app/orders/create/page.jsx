@@ -42,6 +42,8 @@ export default function CreateOrderForm() {
     setLoading(true);
     setMessage("");
 
+    console.log("Datos enviados:", formData);
+
     try {
       const response = await fetch("/api/order", {
         method: "POST",

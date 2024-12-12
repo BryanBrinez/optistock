@@ -10,7 +10,7 @@ export async function PUT(request, { params }) {
     await connectDB();
 
     // Obtener el ID del pedido desde los parámetros de la URL
-    const { id } = await params;  // Esperamos para obtener el id correctamente
+    const { id } = await params; // Esperamos para obtener el id correctamente
 
     // Obtener los datos de actualización del cuerpo de la solicitud
     const updateData = await request.json();
@@ -36,28 +36,35 @@ export async function PUT(request, { params }) {
       // Para cada producto del pedido, devolver la cantidad al inventario
       for (let item of order.productos) {
         const inventory = await Inventory.findOne({
-          tienda: order.tienda,  // Usamos el ID de la tienda del pedido
+          tienda: order.tienda, // Usamos el ID de la tienda del pedido
         });
 
         if (inventory) {
           // Buscar el producto dentro del inventario de esa tienda
           const productInventory = inventory.productos.find(
-            (product) => product.producto.toString() === item.producto.toString()
+            (product) =>
+              product.producto.toString() === item.producto.toString()
           );
 
           if (productInventory) {
             console.log("Producto encontrado en inventario:", productInventory);
-            productInventory.cantidad += item.cantidad;  // Aumentar cantidad en inventario
+            productInventory.cantidad += item.cantidad; // Aumentar cantidad en inventario
             inventory.fechaUltimaActualizacion = new Date(); // Actualizar la fecha de la última modificación
 
             // Guardar la actualización del inventario
             await inventory.save();
-            console.log(`Cantidad de ${item.producto} aumentada a ${productInventory.cantidad}`);
+            console.log(
+              `Cantidad de ${item.producto} aumentada a ${productInventory.cantidad}`
+            );
           } else {
-            console.log(`Producto ${item.producto} no encontrado en el inventario de la tienda ${order.tienda}`);
+            console.log(
+              `Producto ${item.producto} no encontrado en el inventario de la tienda ${order.tienda}`
+            );
           }
         } else {
-          console.log(`Inventario no encontrado para la tienda ${order.tienda}`);
+          console.log(
+            `Inventario no encontrado para la tienda ${order.tienda}`
+          );
         }
       }
     }
@@ -67,6 +74,41 @@ export async function PUT(request, { params }) {
 
     // Retornar la respuesta con el pedido actualizado
     return new Response(JSON.stringify(updatedOrder), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (error) {
+    // Manejo de errores
+    return new Response(JSON.stringify({ message: error.message }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+}
+
+export async function GET(request, { params }) {
+  try {
+    // Conectar a la base de datos
+    await connectDB();
+
+    // Obtener el ID del pedido desde los parámetros de la URL
+    const { id } = params;
+
+    // Buscar un pedido específico por ID
+    const order = await Order.findById(id)
+      .populate("cliente", "nombre direccionEnvio") // Poblar datos del cliente
+      .populate("productos.producto", "nombre precioUnitario"); // Poblar datos de cada producto
+
+    // Validar si no se encuentra el pedido
+    if (!order) {
+      return new Response(JSON.stringify({ message: "Pedido no encontrado" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    // Retornar solo el pedido encontrado
+    return new Response(JSON.stringify(order), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
