@@ -7,7 +7,7 @@ export default function StoresPage() {
   const [loading, setLoading] = useState(true);
   const [editMode, setEditMode] = useState({}); // Controla qué tienda está en modo edición
 
-  // Función para obtener las tiendas
+  // Función obtener tiendas
   const fetchStores = async () => {
     setLoading(true);
     try {
@@ -20,12 +20,10 @@ export default function StoresPage() {
     }
   };
 
-  // Ejecutar al montar el componente
   useEffect(() => {
     fetchStores();
   }, []);
 
-  // Función para manejar la edición
   const toggleEditMode = (idStore) => {
     setEditMode((prev) => ({ ...prev, [idStore]: !prev[idStore] }));
   };
@@ -41,14 +39,14 @@ export default function StoresPage() {
       });
       console.log("Tienda actualizada:", response.data);
 
-      // Actualizar la lista de tiendas con los datos guardados
+      // Actualizar lista de tiendas con los datos guardados
       setStores((prev) =>
         prev.map((store) =>
           store.idStore === idStore ? response.data : store
         )
       );
 
-      toggleEditMode(idStore); // Salir del modo edición
+      toggleEditMode(idStore); // Salir de edición
     } catch (error) {
       console.error("Error al guardar los cambios:", error);
     }
