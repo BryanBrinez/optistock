@@ -32,7 +32,7 @@ export function Navbar() {
 
           {/* Links para pantallas grandes */}
           <div className="hidden md:flex space-x-6">
-            <a href="#inventario" className="hover:text-blue-200">
+            <a href="/inventario" className="hover:text-blue-200">
               Inventario
             </a>
             <a href="#reportes" className="hover:text-blue-200">
@@ -67,7 +67,7 @@ export function Navbar() {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-blue-500">
             <div className="flex flex-col space-y-2 p-4">
-              <a href="#inventario" className="hover:text-blue-200">
+              <a href="/inventario" className="hover:text-blue-200">
                 Inventario
               </a>
               <a href="#reportes" className="hover:text-blue-200">
