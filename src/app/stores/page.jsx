@@ -43,10 +43,9 @@ export default function StoresPage() {
     }
   };
 
-  //Función Crear Nueva Tienda
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newStore, setNewStore] = useState({
-    idStore: "", // Nuevo campo agregado
+    idStore: "",
     nombre: "",
     direccion: "",
     ciudad: "",
@@ -87,11 +86,11 @@ export default function StoresPage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Gestión de Tiendas</h1>
-      <div>
+      <div className="flex flex-wrap gap-4">
         {stores.map((store, index) => (
           <div
             key={store.id || index}
-            className="bg-gray-100 rounded-lg shadow-md p-4 mb-4"
+            className="bg-gray-100 rounded-lg shadow-md p-4 w-full sm:w-1/2 lg:w-1/3 xl:w-1/4 flex-grow"
           >
             <h2 className="text-lg font-bold">{store.nombre}</h2>
             <p>Dirección: {store.direccion}</p>
