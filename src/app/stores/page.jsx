@@ -112,6 +112,62 @@ export default function StoresPage() {
                         )
                       }
                     />
+                    <input
+                      type="text"
+                      className="mb-2 p-2 border rounded w-full"
+                      value={store.ciudad}
+                      onChange={(e) =>
+                        setStores((prev) =>
+                          prev.map((s) =>
+                            s.idStore === store.idStore
+                              ? { ...s, ciudad: e.target.value }
+                              : s
+                          )
+                        )
+                      }
+                    />
+                    <input
+                      type="text"
+                      className="mb-2 p-2 border rounded w-full"
+                      value={store.codigoPostal}
+                      onChange={(e) =>
+                        setStores((prev) =>
+                          prev.map((s) =>
+                            s.idStore === store.idStore
+                              ? { ...s, codigoPostal: e.target.value }
+                              : s
+                          )
+                        )
+                      }
+                    />
+                    <input
+                      type="number"
+                      className="mb-2 p-2 border rounded w-full"
+                      value={store.capacidadAlmacenamiento}
+                      onChange={(e) =>
+                        setStores((prev) =>
+                          prev.map((s) =>
+                            s.idStore === store.idStore
+                              ? { ...s, capacidadAlmacenamiento: e.target.value }
+                              : s
+                          )
+                        )
+                      }
+                    />
+                    <input
+                      type="text"
+                      className="mb-2 p-2 border rounded w-full"
+                      value={store.horarioOperacion}
+                      onChange={(e) =>
+                        setStores((prev) =>
+                          prev.map((s) =>
+                            s.idStore === store.idStore
+                              ? { ...s, horarioOperacion: e.target.value }
+                              : s
+                          )
+                        )
+                      }
+                    />
                     <div className="flex">
                       <div className="flex-1">
                         <button
