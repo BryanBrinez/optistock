@@ -5,9 +5,19 @@ import axios from "axios";
 export default function StoresPage() {
   const [stores, setStores] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editMode, setEditMode] = useState({});
+  const [editMode, setEditMode] = useState({}); // Controla qué tienda está en modo edición
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [newStore, setNewStore] = useState({
+    idStore: "",
+    nombre: "",
+    direccion: "",
+    ciudad: "",
+    codigoPostal: "",
+    capacidadAlmacenamiento: "",
+    horarioOperacion: "",
+  });
 
-  // Función obtener tiendas
+  // Obtener tiendas
   const fetchStores = async () => {
     setLoading(true);
     try {
@@ -24,13 +34,33 @@ export default function StoresPage() {
     fetchStores();
   }, []);
 
+  // Alternar modo de edición
   const toggleEditMode = (idStore) => {
     setEditMode((prev) => ({ ...prev, [idStore]: !prev[idStore] }));
   };
 
+  // Guardar cambios
+  const saveChanges = async (idStore) => {
+    const updatedStore = stores.find((store) => store.idStore === idStore);
+
+    try {
+      const response = await axios.put("/api/store", updatedStore);
+      setStores((prev) =>
+        prev.map((store) =>
+          store.idStore === idStore ? response.data : store
+        )
+      );
+      toggleEditMode(idStore);
+      console.log("Tienda actualizada:", response.data);
+    } catch (error) {
+      console.error("Error al guardar los cambios:", error);
+    }
+  };
+
+  // Eliminar tienda
   const deleteStore = async (idStore) => {
     const confirmDelete = window.confirm(
-      "¿Estás seguro de que deseas eliminar esta tienda? Esta acción no se puede deshacer."
+      "¿Estás seguro de que deseas eliminar esta tienda?"
     );
     if (!confirmDelete) return;
 
@@ -43,23 +73,8 @@ export default function StoresPage() {
     }
   };
 
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newStore, setNewStore] = useState({
-    idStore: "",
-    nombre: "",
-    direccion: "",
-    ciudad: "",
-    codigoPostal: "",
-    capacidadAlmacenamiento: "",
-    horarioOperacion: "",
-  });
-
+  // Crear nueva tienda
   const createStore = async () => {
-    if (!newStore.idStore) {
-      alert("El campo 'idStore' es obligatorio.");
-      return;
-    }
-
     try {
       const response = await axios.post("/api/store", newStore);
       setStores((prev) => [...prev, response.data]);
@@ -86,18 +101,130 @@ export default function StoresPage() {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Gestión de Tiendas</h1>
+
       <div className="flex flex-wrap gap-4">
         {stores.map((store, index) => (
           <div
-            key={store.id || index}
+            key={store.idStore || index}
             className="bg-gray-100 rounded-lg shadow-md p-4 w-full sm:w-1/2 lg:w-1/3 xl:w-1/4 flex-grow"
           >
-            <h2 className="text-lg font-bold">{store.nombre}</h2>
-            <p>Dirección: {store.direccion}</p>
-            <p>Ciudad: {store.ciudad}</p>
-            <p>Código Postal: {store.codigoPostal}</p>
-            <p>Capacidad de Almacenamiento: {store.capacidadAlmacenamiento}</p>
-            <p>Horario de Operación: {store.horarioOperacion}</p>
+            {editMode[store.idStore] ? (
+              <>
+                <input
+                  type="text"
+                  className="mb-2 p-2 border rounded w-full"
+                  value={store.nombre}
+                  onChange={(e) =>
+                    setStores((prev) =>
+                      prev.map((s) =>
+                        s.idStore === store.idStore
+                          ? { ...s, nombre: e.target.value }
+                          : s
+                      )
+                    )
+                  }
+                />
+                <input
+                  type="text"
+                  className="mb-2 p-2 border rounded w-full"
+                  value={store.direccion}
+                  onChange={(e) =>
+                    setStores((prev) =>
+                      prev.map((s) =>
+                        s.idStore === store.idStore
+                          ? { ...s, direccion: e.target.value }
+                          : s
+                      )
+                    )
+                  }
+                />
+                <input
+                  type="text"
+                  className="mb-2 p-2 border rounded w-full"
+                  value={store.ciudad}
+                  onChange={(e) =>
+                    setStores((prev) =>
+                      prev.map((s) =>
+                        s.idStore === store.idStore
+                          ? { ...s, ciudad: e.target.value }
+                          : s
+                      )
+                    )
+                  }
+                />
+                <input
+                  type="text"
+                  className="mb-2 p-2 border rounded w-full"
+                  value={store.codigoPostal}
+                  onChange={(e) =>
+                    setStores((prev) =>
+                      prev.map((s) =>
+                        s.idStore === store.idStore
+                          ? { ...s, codigoPostal: e.target.value }
+                          : s
+                      )
+                    )
+                  }
+                />
+                <input
+                  type="text"
+                  className="mb-2 p-2 border rounded w-full"
+                  value={store.capacidadAlmacenamiento}
+                  onChange={(e) =>
+                    setStores((prev) =>
+                      prev.map((s) =>
+                        s.idStore === store.idStore
+                          ? { ...s, capacidadAlmacenamiento: e.target.value }
+                          : s
+                      )
+                    )
+                  }
+                />
+                <input
+                  type="text"
+                  className="mb-2 p-2 border rounded w-full"
+                  value={store.horarioOperacion}
+                  onChange={(e) =>
+                    setStores((prev) =>
+                      prev.map((s) =>
+                        s.idStore === store.idStore
+                          ? { ...s, horarioOperacion: e.target.value }
+                          : s
+                      )
+                    )
+                  }
+                />
+                <button
+                  className="bg-green-500 text-white px-4 py-2 rounded w-full"
+                  onClick={() => saveChanges(store.idStore)}
+                >
+                  Guardar
+                </button>
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-bold">{store.nombre}</h2>
+                <p>Dirección: {store.direccion}</p>
+                <p>Ciudad: {store.ciudad}</p>
+                <p>Código Postal: {store.codigoPostal}</p>
+                <p>Capacidad: {store.capacidadAlmacenamiento}</p>
+                <p>Horario: {store.horarioOperacion}</p>
+                <div className="flex justify-center mt-4">
+                  <button
+                    className="bg-blue-500 text-white px-4 py-2 mx-2 rounded"
+                    onClick={() => toggleEditMode(store.idStore)}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className="bg-red-500 text-white px-4 py-2 mx-2 rounded"
+                    onClick={() => deleteStore(store.idStore)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         ))}
       </div>
@@ -114,7 +241,7 @@ export default function StoresPage() {
           <div className="bg-white rounded-lg shadow-md p-4">
             <input
               type="text"
-              placeholder="ID de la tienda (idStore)"
+              placeholder="ID de la tienda"
               className="mb-2 p-2 border rounded w-full"
               value={newStore.idStore}
               onChange={(e) =>
@@ -123,7 +250,7 @@ export default function StoresPage() {
             />
             <input
               type="text"
-              placeholder="Nombre"
+              placeholder="Nombre de tienda"
               className="mb-2 p-2 border rounded w-full"
               value={newStore.nombre}
               onChange={(e) =>
@@ -132,7 +259,7 @@ export default function StoresPage() {
             />
             <input
               type="text"
-              placeholder="Dirección"
+              placeholder="Dirección de tienda"
               className="mb-2 p-2 border rounded w-full"
               value={newStore.direccion}
               onChange={(e) =>
@@ -141,7 +268,7 @@ export default function StoresPage() {
             />
             <input
               type="text"
-              placeholder="Ciudad"
+              placeholder="Ciudad de tienda"
               className="mb-2 p-2 border rounded w-full"
               value={newStore.ciudad}
               onChange={(e) =>
@@ -150,7 +277,7 @@ export default function StoresPage() {
             />
             <input
               type="text"
-              placeholder="Código Postal"
+              placeholder="Código Postal de Tienda"
               className="mb-2 p-2 border rounded w-full"
               value={newStore.codigoPostal}
               onChange={(e) =>
