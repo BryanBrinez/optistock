@@ -10,6 +10,8 @@ export default function Home() {
     nombre: "",
     descripcion: "",
     precio: "",
+    idProduct: "",
+    proveedores: []
   });
 
   const fetchProducts = async () => {
@@ -38,6 +40,21 @@ export default function Home() {
     });
   };
 
+  const handleDelete = async (idProduct) => {
+    try {
+      const response = await axios.delete("/api/product", {
+        data: { idProduct }, // Enviar ID en el cuerpo
+      });
+  
+      if (response.status === 200) {
+        setProducts(products.filter((product) => product.idProduct !== idProduct));
+      }
+    } catch (error) {
+      console.error("Error al eliminar producto:", error);
+    }
+  };
+  
+
   const saveChanges = async () => {
     try {
       const updatedProduct = {
@@ -51,6 +68,24 @@ export default function Home() {
       fetchProducts();
     } catch (error) {
       console.error("Error al actualizar el producto:", error);
+    }
+  };
+
+  const handleCreate = async () => {
+    try {
+      const newProduct = {
+        ...formData,
+        precio: parseFloat(formData.precio),
+      };
+  
+      const response = await axios.post("/api/product", newProduct);
+  
+      if (response.status === 201) {
+        setProducts([...products, response.data]);
+        setFormData({ nombre: "", descripcion: "", precio: "", idProduct: "", proveedores: [] }); // Limpiar formulario
+      }
+    } catch (error) {
+      console.error("Error al crear producto:", error);
     }
   };
 
@@ -114,17 +149,27 @@ export default function Home() {
                     <p className="text-gray-600 font-bold mt-2">
                       ${product.precio.toFixed(2)}
                     </p>
-                    <button
-                      onClick={() => handleEdit(product)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 transition-colors w-full"
-                    >
-                      Editar
-                    </button>
+                    <div className="flex justify-center mt-4">
+                      <button
+                        className="bg-blue-500 text-white px-4 py-2 mx-2 rounded"
+                        onClick={() => handleEdit(product)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="bg-red-500 text-white px-4 py-2 mx-2 rounded"
+                        onClick={() => handleDelete(product.idProduct)}
+                      >
+                        Eliminar
+                      </button>
+                  </div>
+
                   </div>
                 )}
               </div>
             ))}
           </div>
+          
         )}
       </main>
     </div>

@@ -68,10 +68,6 @@ export async function POST(request) {
 }
 
 
-
-
-
-
 export async function GET() {
   try {
     await connectDB();
@@ -108,4 +104,47 @@ export async function GET() {
   }
 }
 
+export async function DELETE(request) {
+  try {
+    await connectDB();
+
+    const { idProduct } = await request.json();
+
+    // Verificar si el producto existe
+    const product = await Product.findOneAndDelete({ idProduct });
+
+    if (!product) {
+      return new Response(
+        JSON.stringify({ message: "Producto no encontrado" }),
+        {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Eliminar el producto de Redis
+    const redisKey = `product:${idProduct}`;
+    await redisClient.del(redisKey);
+
+    // Invalidar todos los productos en Redis
+    await redisClient.del("all_products");
+
+    return new Response(
+      JSON.stringify({ message: "Producto eliminado correctamente" }),
+      {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ message: error.message }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+}
 
