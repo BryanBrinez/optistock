@@ -35,7 +35,7 @@ export function Navbar() {
             <a href="/inventario" className="hover:text-blue-200">
               Inventario
             </a>
-            <a href="#reportes" className="hover:text-blue-200">
+            <a href="/reports" className="hover:text-blue-200">
               Reportes
             </a>
             <a href="#productos" className="hover:text-blue-200">
@@ -43,6 +43,9 @@ export function Navbar() {
             </a>
             <a href="/orders" className="hover:text-blue-200">
               Órdenes
+            </a>
+            <a href="/clients" className="hover:text-blue-200">
+              Clientes
             </a>
             <a href="/stores" className="hover:text-blue-200">
               Tiendas
