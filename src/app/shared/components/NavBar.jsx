@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -7,6 +7,11 @@ export function Navbar() {
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+
+  // Asegúrate de que el menú móvil esté cerrado al cargar la página
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, []);
 
   return (
     <>
@@ -27,6 +32,9 @@ export function Navbar() {
         <div className="container mx-auto px-4 py-4 flex justify-center items-center">
           {/* Links para pantallas grandes */}
           <div className="hidden md:flex space-x-6">
+            <a href="/" className="hover:text-yellow-500 font-semibold">
+              Home
+            </a>
             <a href="#inventario" className="hover:text-yellow-500 font-semibold">
               Inventario
             </a>
@@ -62,6 +70,9 @@ export function Navbar() {
         {isMobileMenuOpen && (
           <div className="md:hidden bg-gray-800" style={{ backgroundImage: 'url(/img/texture.jpg)', backgroundSize: 'cover' }}>
             <div className="flex flex-col space-y-2 p-4">
+              <a href="/" className="hover:text-yellow-500 font-semibold">
+                Home
+              </a>
               <a href="#inventario" className="hover:text-yellow-500 font-semibold">
                 Inventario
               </a>
