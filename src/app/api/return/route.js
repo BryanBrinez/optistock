@@ -164,13 +164,6 @@ export async function POST(request) {
       const producto = await Product.findById(orderProduct.producto);
       montoReembolso = producto.precio * returnData.cantidad;
 
-      // console.log(
-      //   "productooooooooooooooooooooo",
-      //   producto.precio,
-      //   "returnnnnnnnnnnnnn",
-      //   returnData
-      // );
-
       // Actualizar la cantidad del producto en el pedido
       orderProduct.cantidad -= returnData.cantidad;
 
