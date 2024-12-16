@@ -2,6 +2,48 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+const Carousel = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const images = [
+    "/img/image1.jpg",
+    "/img/image2.jpg",
+    "/img/image3.jpg",
+    "/img/image4.jpg"
+  ];
+
+  const nextSlide = () => {
+    setCurrentIndex((currentIndex + 1) % images.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((currentIndex - 1 + images.length) % images.length);
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 3000); // Cambia de imagen cada 3 segundos
+
+    return () => clearInterval(interval);
+  }, [currentIndex]);
+
+  return (
+    <div className="carousel relative mx-auto" style={{ height: "60vh", width: "90vw", position: "relative", marginTop: '20px' }}> {/* Ajusta la altura, el ancho y la posición del carrusel aquí */}
+      {images.map((image, index) => (
+        <div
+          key={index}
+          className={`carousel-item absolute ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
+          style={{ height: "100%", transition: "opacity 0.5s ease-in-out", width: "100%", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.5)" }} // Añade sombra al contorno de las imágenes
+        >
+          <img src={image} alt={`Slide ${index + 1}`} className="block h-full w-full object-cover" />
+        </div>
+      ))}
+      <button onClick={prevSlide} className="prev control-1 w-10 h-10 absolute cursor-pointer block text-3xl font-bold text-white hover:text-black rounded-full bg-white hover:bg-gray-400 leading-tight text-center z-10" style={{ top: "50%", transform: "translateY(-50%)", left: "10px" }}>‹</button> {/* Botón de anterior */}
+      <button onClick={nextSlide} className="next control-1 w-10 h-10 absolute cursor-pointer block text-3xl font-bold text-white hover:text-black rounded-full bg-white hover:bg-gray-400 leading-tight text-center z-10" style={{ top: "50%", transform: "translateY(-50%)", right: "10px" }}>›</button> {/* Botón de siguiente */}
+    </div>
+  );
+};
+
 export default function Home() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,109 +66,105 @@ export default function Home() {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleEdit = (product) => {
-    setEditingProduct(product);
-    setFormData({
-      nombre: product.nombre,
-      descripcion: product.descripcion,
-      precio: product.precio,
-    });
-  };
-
-  const saveChanges = async () => {
-    try {
-      const updatedProduct = {
-        ...editingProduct,
-        ...formData,
-        precio: parseFloat(formData.precio),
-      };
-
-      await axios.post("/api/product", updatedProduct);
-      setEditingProduct(null);
-      fetchProducts();
-    } catch (error) {
-      console.error("Error al actualizar el producto:", error);
-    }
-  };
-
   useEffect(() => {
     fetchProducts();
   }, []);
 
+  const [showScrollButton, setShowScrollButton] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 200) {
+        setShowScrollButton(true);
+      } else {
+        setShowScrollButton(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Main Content */}
-      <main className="p-8">
-        {loading ? (
-          <p className="text-center text-gray-600">Cargando productos...</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <div
-                key={product.idProduct}
-                className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow"
-              >
-                {editingProduct &&
-                editingProduct.idProduct === product.idProduct ? (
-                  <div>
-                    <h2 className="text-lg font-semibold mb-4">
-                      Editando: {product.nombre}
-                    </h2>
-                    <input
-                      type="text"
-                      name="nombre"
-                      value={formData.nombre}
-                      onChange={handleInputChange}
-                      className="border border-gray-300 rounded p-2 mb-2 w-full"
-                      placeholder="Nombre"
-                    />
-                    <textarea
-                      name="descripcion"
-                      value={formData.descripcion} //
-                      onChange={handleInputChange}
-                      className="border border-gray-300 rounded p-2 mb-2 w-full"
-                      placeholder="Descripción"
-                    />
-                    <input
-                      type="number"
-                      name="precio"
-                      value={formData.precio}
-                      onChange={handleInputChange}
-                      className="border border-gray-300 rounded p-2 mb-2 w-full"
-                      placeholder="Precio"
-                    />
-                    <button
-                      onClick={saveChanges}
-                      className="bg-green-500 text-white px-4 py-2 rounded w-full hover:bg-green-600 transition-colors"
-                    >
-                      Guardar
-                    </button>
-                  </div>
-                ) : (
-                  <div>
-                    <h2 className="text-lg font-semibold">{product.nombre}</h2>
-                    <p className="text-gray-700">{product.descripcion}</p>
-                    <p className="text-gray-600 font-bold mt-2">
-                      ${product.precio.toFixed(2)}
-                    </p>
-                    <button
-                      onClick={() => handleEdit(product)}
-                      className="bg-blue-500 text-white px-4 py-2 rounded mt-4 hover:bg-blue-600 transition-colors w-full"
-                    >
-                      Editar
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
+    <div className="flex flex-col min-h-screen" style={{ backgroundColor: "#E0E0E0" }}> {/* Fondo gris claro */}
+      <div className="flex-grow flex justify-center items-center" style={{ marginTop: '20px' }}> {/* Ajusta el margen superior */}
+        {/* Carrusel */}
+        <Carousel />
+      </div>
+      <div className="flex justify-start items-start w-full px-4" style={{ marginTop: '100px', marginLeft: '50px', marginBottom: '120px' }}> {/* Ajusta el margen superior, izquierdo e inferior */}
+        {/* Formulario de inscripción */}
+        <form className="bg-gray-200 p-6 rounded-lg shadow-md w-full max-w-md"> {/* Fondo gris claro para el formulario */}
+          <h2 className="text-2xl font-bold mb-4 text-blue-500">Suscribirse para recibir ofertas</h2> {/* Título en azul */}
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="nombre">
+              Nombre
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="nombre"
+              type="text"
+              placeholder="Nombre"
+            />
           </div>
-        )}
-      </main>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+              Correo Electrónico
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="email"
+              type="email"
+              placeholder="Correo Electrónico"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="telefono">
+              Teléfono
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="telefono"
+              type="tel"
+              placeholder="Teléfono"
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              type="button"
+            >
+              Suscribirse
+            </button>
+          </div>
+        </form>
+      </div>
+      {/* Botón de volver arriba */}
+      {showScrollButton && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-4 right-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:shadow-outline"
+        >
+          ↑ Volver arriba
+        </button>
+      )}
+      {/* Footer */}
+      <footer className="bg-gray-800 text-white py-4 mt-8">
+        <div className="container mx-auto text-center">
+          <div className="flex flex-col md:flex-row justify-center items-center space-y-2 md:space-y-0 md:space-x-8">
+            <p>📞 Teléfono: +52 555 555 5555</p>
+            <p>✉️ Correo: soporte@tutienda.com</p>
+            <p>🏠 Dirección: Av. Principal 123, Ciudad, País</p>
+            <p>⏰ Horario de atención: Lunes a Viernes, 9:00 a.m. - 6:00 p.m.</p>
+          </div>
+          <p className="mt-4">&copy; 2024 Optistock. Todos los derechos reservados.</p>
+        </div>
+      </footer>
     </div>
   );
 }
