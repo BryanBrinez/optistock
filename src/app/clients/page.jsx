@@ -5,7 +5,6 @@ import axios from "axios";
 export default function CustomersPage() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editMode, setEditMode] = useState({});
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newCustomer, setNewCustomer] = useState({
     nombre: "",
@@ -14,8 +13,10 @@ export default function CustomersPage() {
       ciudad: "",
       codigo_postal: "",
     },
-    historial_pedidos: [],
+    historial_pedidos: [], // Campo inicializado vacío
   });
+
+  const [pedido, setPedido] = useState({ nombre: "", estado: "" });
 
   // Obtener clientes
   const fetchCustomers = async () => {
@@ -34,48 +35,10 @@ export default function CustomersPage() {
     fetchCustomers();
   }, []);
 
-  // Alternar modo de edición
-  const toggleEditMode = (customerId) => {
-    setEditMode((prev) => ({ ...prev, [customerId]: !prev[customerId] }));
-  };
-
-  // Guardar cambios
-  const saveChanges = async (customerId) => {
-    const updatedCustomer = customers.find((customer) => customer._id === customerId);
-
-    try {
-      const response = await axios.put(`/api/customers`, updatedCustomer);
-      setCustomers((prev) =>
-        prev.map((customer) =>
-          customer._id === customerId ? response.data : customer
-        )
-      );
-      toggleEditMode(customerId);
-      console.log("Cliente actualizado:", response.data);
-    } catch (error) {
-      console.error("Error al guardar los cambios:", error);
-    }
-  };
-
-  // Eliminar cliente
-  const deleteCustomer = async (customerId) => {
-    const confirmDelete = window.confirm(
-      "¿Estás seguro de que deseas eliminar este cliente?"
-    );
-    if (!confirmDelete) return;
-
-    try {
-      await axios.delete(`/api/customers?id=${customerId}`);
-      setCustomers((prev) => prev.filter((customer) => customer._id !== customerId));
-      console.log("Cliente eliminado");
-    } catch (error) {
-      console.error("Error al eliminar el cliente:", error);
-    }
-  };
-
   // Crear nuevo cliente
   const createCustomer = async () => {
     try {
+      console.log("Datos enviados al backend:", newCustomer);
       const response = await axios.post("/api/customers", newCustomer);
       setCustomers((prev) => [...prev, response.data]);
       setShowCreateForm(false);
@@ -88,10 +51,19 @@ export default function CustomersPage() {
         },
         historial_pedidos: [],
       });
-      console.log("Cliente creado:", response.data);
     } catch (error) {
-      console.error("Error al crear el cliente:", error);
+      console.error("Error al crear el cliente:", error.response?.data || error.message);
     }
+  };
+  
+
+  // Agregar pedido al historial
+  const addPedidoToHistorial = () => {
+    setNewCustomer((prev) => ({
+      ...prev,
+      historial_pedidos: [...prev.historial_pedidos, pedido],
+    }));
+    setPedido({ nombre: "", estado: "" }); // Reiniciar campos del pedido
   };
 
   if (loading) {
@@ -108,124 +80,22 @@ export default function CustomersPage() {
             key={customer._id}
             className="bg-gray-100 rounded-lg shadow-md p-4 w-full sm:w-1/2 lg:w-1/3 xl:w-1/4 flex-grow"
           >
-            {editMode[customer._id] ? (
-              <>
-                <input
-                  type="text"
-                  className="mb-2 p-2 border rounded w-full"
-                  value={customer.nombre}
-                  onChange={(e) =>
-                    setCustomers((prev) =>
-                      prev.map((c) =>
-                        c._id === customer._id
-                          ? { ...c, nombre: e.target.value }
-                          : c
-                      )
-                    )
-                  }
-                />
-                <input
-                  type="text"
-                  className="mb-2 p-2 border rounded w-full"
-                  value={customer.direccion_envio.calle}
-                  onChange={(e) =>
-                    setCustomers((prev) =>
-                      prev.map((c) =>
-                        c._id === customer._id
-                          ? {
-                              ...c,
-                              direccion_envio: {
-                                ...c.direccion_envio,
-                                calle: e.target.value,
-                              },
-                            }
-                          : c
-                      )
-                    )
-                  }
-                />
-                <input
-                  type="text"
-                  className="mb-2 p-2 border rounded w-full"
-                  value={customer.direccion_envio.ciudad}
-                  onChange={(e) =>
-                    setCustomers((prev) =>
-                      prev.map((c) =>
-                        c._id === customer._id
-                          ? {
-                              ...c,
-                              direccion_envio: {
-                                ...c.direccion_envio,
-                                ciudad: e.target.value,
-                              },
-                            }
-                          : c
-                      )
-                    )
-                  }
-                />
-                <input
-                  type="text"
-                  className="mb-2 p-2 border rounded w-full"
-                  value={customer.direccion_envio.codigo_postal}
-                  onChange={(e) =>
-                    setCustomers((prev) =>
-                      prev.map((c) =>
-                        c._id === customer._id
-                          ? {
-                              ...c,
-                              direccion_envio: {
-                                ...c.direccion_envio,
-                                codigo_postal: e.target.value,
-                              },
-                            }
-                          : c
-                      )
-                    )
-                  }
-                />
-                <button
-                  className="bg-green-500 text-white px-4 py-2 rounded w-full"
-                  onClick={() => saveChanges(customer._id)}
-                >
-                  Guardar
-                </button>
-              </>
-            ) : (
-              <>
-                <h2 className="text-lg font-bold">{customer.nombre}</h2>
-                <p>Dirección: {customer.direccion_envio.calle}</p>
-                <p>Ciudad: {customer.direccion_envio.ciudad}</p>
-                <p>Código Postal: {customer.direccion_envio.codigo_postal}</p>
-                <p>Historial de Pedidos:</p>
-                <ul className="list-disc pl-5">
-                  {Array.isArray(customer.historial_pedidos) && customer.historial_pedidos.length > 0 ? (
-                    customer.historial_pedidos.map((pedido, index) => (
-                      <li key={index}>
-                        {pedido.nombre} - {pedido.estado}
-                      </li>
-                    ))
-                  ) : (
-                    <li>No hay pedidos en el historial.</li>
-                  )}
-                </ul>
-
-                <div className="flex justify-center mt-4">
-                  <button
-                    className="bg-blue-500 text-white px-4 py-2 mx-2 rounded"
-                    onClick={() => toggleEditMode(customer._id)}
-                  >
-                    Editar
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-4 py-2 mx-2 rounded"
-                    onClick={() => deleteCustomer(customer._id)}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </>
-            )}
+            <h2 className="text-lg font-bold">{customer.nombre}</h2>
+            <p>Dirección: {customer.direccion_envio.calle}</p>
+            <p>Ciudad: {customer.direccion_envio.ciudad}</p>
+            <p>Código Postal: {customer.direccion_envio.codigo_postal}</p>
+            <p>Historial de Pedidos:</p>
+            <ul className="list-disc pl-5">
+              {Array.isArray(customer.historial_pedidos) && customer.historial_pedidos.length > 0 ? (
+                customer.historial_pedidos.map((pedido, index) => (
+                  <li key={index}>
+                    {pedido.nombre} - {pedido.estado}
+                  </li>
+                ))
+              ) : (
+                <li>No hay pedidos en el historial.</li>
+              )}
+            </ul>
           </div>
         ))}
       </div>
@@ -294,6 +164,29 @@ export default function CustomersPage() {
                 })
               }
             />
+            <div className="mb-4">
+              <h3 className="font-bold mb-2">Agregar Pedido:</h3>
+              <input
+                type="text"
+                placeholder="Nombre del pedido"
+                className="mb-2 p-2 border rounded w-full"
+                value={pedido.nombre}
+                onChange={(e) => setPedido({ ...pedido, nombre: e.target.value })}
+              />
+              <input
+                type="text"
+                placeholder="Estado del pedido"
+                className="mb-2 p-2 border rounded w-full"
+                value={pedido.estado}
+                onChange={(e) => setPedido({ ...pedido, estado: e.target.value })}
+              />
+              <button
+                className="bg-gray-500 text-white px-4 py-2 rounded w-full"
+                onClick={addPedidoToHistorial}
+              >
+                Agregar al Historial
+              </button>
+            </div>
             <button
               className="bg-blue-500 text-white px-4 py-2 rounded w-full"
               onClick={createCustomer}

@@ -101,7 +101,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="p-8 bg-white shadow-md rounded-lg mb-8">
-        <h2 className="text-xl font-bold mb-4">Crear un nuevo producto</h2>
+        <h2 className="text-xl font-bold mb-4 text-center">Crear un nuevo producto</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
