@@ -11,7 +11,7 @@ export default function Home() {
     descripcion: "",
     precio: "",
     idProduct: "",
-    proveedores: []
+    proveedores: [],
   });
 
   const fetchProducts = async () => {
@@ -53,7 +53,6 @@ export default function Home() {
       console.error("Error al eliminar producto:", error);
     }
   };
-  
 
   const saveChanges = async () => {
     try {
@@ -77,12 +76,18 @@ export default function Home() {
         ...formData,
         precio: parseFloat(formData.precio),
       };
-  
+
       const response = await axios.post("/api/product", newProduct);
-  
+
       if (response.status === 201) {
         setProducts([...products, response.data]);
-        setFormData({ nombre: "", descripcion: "", precio: "", idProduct: "", proveedores: [] }); // Limpiar formulario
+        setFormData({
+          nombre: "",
+          descripcion: "",
+          precio: "",
+          idProduct: "",
+          proveedores: [],
+        });
       }
     } catch (error) {
       console.error("Error al crear producto:", error);
@@ -95,7 +100,50 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Main Content */}
+      <div className="p-8 bg-white shadow-md rounded-lg mb-8">
+        <h2 className="text-xl font-bold mb-4">Crear un nuevo producto</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <input
+            type="text"
+            name="idProduct"
+            value={formData.idProduct}
+            onChange={handleInputChange}
+            className="border border-gray-300 rounded p-2"
+            placeholder="ID del Producto"
+          />
+          <input
+            type="text"
+            name="nombre"
+            value={formData.nombre}
+            onChange={handleInputChange}
+            className="border border-gray-300 rounded p-2"
+            placeholder="Nombre"
+          />
+          <textarea
+            name="descripcion"
+            value={formData.descripcion}
+            onChange={handleInputChange}
+            className="border border-gray-300 rounded p-2"
+            placeholder="Descripción"
+          />
+          <input
+            type="number"
+            name="precio"
+            value={formData.precio}
+            onChange={handleInputChange}
+            className="border border-gray-300 rounded p-2"
+            placeholder="Precio"
+          />
+        </div>
+        <button
+          onClick={handleCreate}
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+        >
+          Crear Producto
+        </button>
+      </div>
+
+      {/* Lista de productos */}
       <main className="p-8">
         {loading ? (
           <p className="text-center text-gray-600">Cargando productos...</p>
