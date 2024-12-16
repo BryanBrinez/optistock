@@ -3,6 +3,7 @@ import Inventory from "../../../../../Schemas/Inventory"; // Modelo de inventari
 import Report from "../../../../../Schemas/Report"; // Modelo de reportes
 import Product from "../../../../../Schemas/Product"; // Modelo de productos
 import { redisClient } from "@/libs/redis";
+import mongoose from 'mongoose';
 
 async function ensureRedisConnection() {
   if (!redisClient.isOpen) {
@@ -10,16 +11,16 @@ async function ensureRedisConnection() {
   }
 }
 
-export async function POST(request,{params}) {
+export async function POST(request, { params }) {
   try {
     // Conectar a MongoDB y Redis
     await connectDB();
     await ensureRedisConnection();
 
-    const { productId } = await params; // Obtener el ID del producto desde el cuerpo de la solicitud
+    const { productId } = params; // Obtener el ID del producto desde el cuerpo de la solicitud
     const redisKey = `product_availability_report:${productId}`;
 
-    console.log(productId)
+    console.log(productId);
 
     // Verificar si el reporte ya está en Redis
     const cachedReport = await redisClient.get(redisKey);
@@ -32,7 +33,7 @@ export async function POST(request,{params}) {
     }
 
     // Obtener el producto
-    const product = await Product.findOne({ _id: productId });
+    const product = await Product.findOne({ idProduct: productId });
 
     if (!product) {
       return new Response(

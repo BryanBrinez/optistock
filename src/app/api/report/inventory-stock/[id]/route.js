@@ -3,6 +3,7 @@ import { redisClient } from "@/libs/redis";
 import Inventory from "../../../../../Schemas/Inventory"; // Modelo de inventario
 import Report from "../../../../../Schemas/Report"; // Modelo de reportes
 import Product from "../../../../../Schemas/Product"; // Modelo de reportes
+import mongoose from 'mongoose';
 
 async function ensureRedisConnection() {
   if (!redisClient.isOpen) {
