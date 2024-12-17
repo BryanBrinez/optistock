@@ -81,16 +81,24 @@ export async function GET() {
   try {
     await connectDB();
 
-    const suppliers = await Supplier.find().populate("productosSuministrados.producto");
+    // Populate correctamente productosSuministrados
+    const suppliers = await Supplier.find()
+      .populate({
+        path: "productosSuministrados.idProduct", // La relación con los productos
+        model: "Product", // Asegúrate de que el modelo Product esté correcto
+        select: "nombre precio descripcion" // Puedes seleccionar los campos que necesites
+      })
+      .exec();
 
     return new Response(JSON.stringify(suppliers), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    return new Response(JSON.stringify({ message: error.message }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error(error);
+    return new Response(
+      JSON.stringify({ message: error.message }),
+      { status: 500 }
+    );
   }
 }

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Asegúrate de que el modelo Product esté correctamente definido
 const SupplierSchema = new mongoose.Schema(
   {
     nombre: { type: String, required: true },
@@ -11,7 +12,7 @@ const SupplierSchema = new mongoose.Schema(
     },
     productosSuministrados: [
       {
-        idProduct: { type: String, required: true },
+        idProduct: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true }, // Referencia al modelo Product
         precio: { type: Number, required: true },
         cantidad: { type: Number, required: true },
         terminoEntrega: { type: String, required: true },
